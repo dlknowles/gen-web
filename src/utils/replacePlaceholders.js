@@ -1,11 +1,14 @@
 const fs = require('fs');
 
 function replacePlaceholdersInFile(filePath, replacements) {
-  // TODO: Implement placeholder replacement logic
-  // e.g., replace {{projectName}} with replacements.projectName
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updated = content.replace(/{{projectName}}/g, replacements.projectName);
-  fs.writeFileSync(filePath, updated, 'utf8');
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  for (const [key, value] of Object.entries(replacements)) {
+    const pattern = new RegExp(`{{${key}}}`, 'g');
+    content = content.replace(pattern, value);
+  }
+
+  fs.writeFileSync(filePath, content, 'utf8');
 }
 
 module.exports = { replacePlaceholdersInFile };
