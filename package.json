@@ -1,0 +1,31 @@
+{
+  "name": "gen-web",
+  "version": "0.1.0",
+  "description": "Zero-bloat React + Tailwind + TypeScript starter generator",
+  "main": "src/copyTemplate.js",
+  "bin": {
+    "gen-web": "./bin/gen-web.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dlknowles/gen-web.git"
+  },
+  "keywords": [
+    "react",
+    "tailwind",
+    "typescript",
+    "starter",
+    "cli",
+    "scaffold"
+  ],
+  "author": "Lee Knowles",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dlknowles/gen-web/issues"
+  },
+  "homepage": "https://github.com/dlknowles/gen-web#readme"
+}
