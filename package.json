@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Zero-bloat React + TypeScript + Tailwind starter generator",
   "bin": {
-    "gen-web": "./bin/gen-web.js"
+    "gen-web": "bin/gen-web.js"
   },
   "main": "src/copyTemplate.js",
   "keywords": [
