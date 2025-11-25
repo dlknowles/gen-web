@@ -1,28 +1,57 @@
-const path = require('path');
-const fs = require('fs');
-const { replacePlaceholdersInFile } = require('./utils/replacePlaceholders');
+// src/copyTemplate.js
+const path = require("path");
+const fs = require("fs");
+const { replacePlaceholdersInFile } = require("./utils/replacePlaceholders");
 
-function copyTemplate({ projectName, targetDir }) {
-  const templateDir = path.resolve(__dirname, '..', 'template');
+const TEXT_EXTENSIONS = new Set([
+  ".js",
+  ".cjs",
+  ".mjs",
+  ".ts",
+  ".tsx",
+  ".jsx",
+  ".json",
+  ".html",
+  ".md",
+  ".css",
+  ".scss",
+  ".sass",
+  ".txt",
+]);
+
+function copyTemplate({ projectName, targetDir, force = false }) {
+  const templateDir = path.resolve(__dirname, "..", "template");
 
   // 1. Basic validations
-  if (!projectName || typeof projectName !== 'string') {
-    console.error('Error: projectName is required.');
+  if (!projectName || typeof projectName !== "string") {
+    console.error("Error: projectName is required.");
     process.exit(1);
   }
 
   if (!fs.existsSync(templateDir)) {
-    console.error('Error: template directory not found at:', templateDir);
+    console.error("Error: template directory not found at:", templateDir);
+    console.error("Try reinstalling gen-web.");
     process.exit(1);
   }
 
-  if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {
-    console.error(`Error: target directory "${targetDir}" already exists and is not empty.`);
-    process.exit(1);
-  }
+  if (fs.existsSync(targetDir)) {
+    const files = fs.readdirSync(targetDir);
 
-  // Ensure target dir exists
-  if (!fs.existsSync(targetDir)) {
+    if (files.length > 0 && !force) {
+      console.error(
+        `Error: target directory "${targetDir}" already exists and is not empty.`
+      );
+      console.error('Run with "--force" to overwrite it:');
+      console.error("");
+      console.error(`  gen-web ${path.basename(targetDir)} --force`);
+      process.exit(1);
+    }
+
+    if (files.length > 0 && force) {
+      fs.rmSync(targetDir, { recursive: true, force: true });
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+  } else {
     fs.mkdirSync(targetDir, { recursive: true });
   }
 
@@ -58,14 +87,6 @@ function copyDirRecursive(srcDir, destDir) {
   }
 }
 
-const TEXT_EXTENSIONS = new Set([
-  '.js', '.cjs', '.mjs',
-  '.ts', '.tsx', '.jsx',
-  '.json', '.html', '.md',
-  '.css', '.scss', '.sass',
-  '.txt',
-]);
-
 function replacePlaceholdersRecursive(dir, replacements) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
@@ -76,7 +97,7 @@ function replacePlaceholdersRecursive(dir, replacements) {
       replacePlaceholdersRecursive(fullPath, replacements);
     } else if (entry.isFile()) {
       const ext = path.extname(entry.name).toLowerCase();
-      if (TEXT_EXTENSIONS.has(ext) || entry.name === 'tailwind.config.cjs' || entry.name === 'postcss.config.cjs') {
+      if (TEXT_EXTENSIONS.has(ext) || entry.name === "tailwind.config.cjs" || entry.name === "postcss.config.cjs") {
         replacePlaceholdersInFile(fullPath, replacements);
       }
     }
@@ -85,17 +106,17 @@ function replacePlaceholdersRecursive(dir, replacements) {
 
 function printNextSteps(projectName) {
   const lines = [
-    '',
+    "",
     `Project "${projectName}" created successfully.`,
-    '',
-    'Next steps:',
+    "",
+    "Next steps:",
     `  cd ${projectName}`,
-    '  npm install',
-    '  npm run dev',
-    '',
+    "  npm install",
+    "  npm run dev",
+    "",
   ];
 
-  console.log(lines.join('\n'));
+  console.log(lines.join("\n"));
 }
 
 module.exports = { copyTemplate };
