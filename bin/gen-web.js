@@ -36,23 +36,19 @@ function normalizeProjectName(input) {
 
 function validateProjectName(rawName, normalizedName) {
   if (!normalizedName) {
-    console.error(`Error: project name "${rawName}" is not valid after normalization.`);
-    process.exit(1);
+    throw new Error(`project name "${rawName}" is not valid after normalization.`);
   }
 
   if (/^[._]/.test(normalizedName)) {
-    console.error(
-      `Error: project name "${normalizedName}" is invalid. ` +
-        "Names cannot start with '.' or '_'."
+    throw new Error(
+      `project name "${normalizedName}" is invalid. Names cannot start with '.' or '_'.`
     );
-    process.exit(1);
   }
 
   if (normalizedName.length > 214) {
-    console.error(
-      `Error: project name "${normalizedName}" is too long (max 214 characters).`
+    throw new Error(
+      `project name "${normalizedName}" is too long (max 214 characters).`
     );
-    process.exit(1);
   }
 }
 
@@ -70,21 +66,16 @@ function run() {
   }
 
   if (args.length === 0) {
-    console.error("Usage: gen-web <project-name> [--force]");
-    console.error("       gen-web --help");
-    process.exit(1);
+    throw new Error('Usage: gen-web <project-name> [--force]\nRun "gen-web --help" for more info.');
   }
 
   const rawName = args[0];
 
   if (rawName.startsWith("-")) {
-    console.error("Error: project name is required.");
-    console.error("Run: gen-web --help");
-    process.exit(1);
+    throw new Error('project name is required. Run "gen-web --help" for usage.');
   }
 
   const force = args.includes("--force");
-
   const normalizedName = normalizeProjectName(rawName);
   validateProjectName(rawName, normalizedName);
 
@@ -95,8 +86,18 @@ function run() {
   }
 
   const targetDir = path.resolve(process.cwd(), normalizedName);
-
   copyTemplate({ projectName: normalizedName, targetDir, force });
 }
 
-run();
+(function main() {
+  try {
+    run();
+  } catch (err) {
+    if (err && err.message) {
+      console.error(`Error: ${err.message}`);
+    } else {
+      console.error("Error: Unknown error occurred.");
+    }
+    process.exit(1);
+  }
+})();

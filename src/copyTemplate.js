@@ -1,71 +1,47 @@
-// src/copyTemplate.js
 const path = require("path");
 const fs = require("fs");
 const { replacePlaceholdersInFile } = require("./utils/replacePlaceholders");
 
-const TEXT_EXTENSIONS = new Set([
-  ".js",
-  ".cjs",
-  ".mjs",
-  ".ts",
-  ".tsx",
-  ".jsx",
-  ".json",
-  ".html",
-  ".md",
-  ".css",
-  ".scss",
-  ".sass",
-  ".txt",
-]);
-
 function copyTemplate({ projectName, targetDir, force = false }) {
   const templateDir = path.resolve(__dirname, "..", "template");
 
-  // 1. Basic validations
   if (!projectName || typeof projectName !== "string") {
-    console.error("Error: projectName is required.");
-    process.exit(1);
+    throw new Error("projectName is required.");
   }
 
   if (!fs.existsSync(templateDir)) {
-    console.error("Error: template directory not found at:", templateDir);
-    console.error("Try reinstalling gen-web.");
-    process.exit(1);
+    throw new Error(`template directory not found at: ${templateDir}\nTry reinstalling gen-web.`);
   }
 
   if (fs.existsSync(targetDir)) {
     const files = fs.readdirSync(targetDir);
 
     if (files.length > 0 && !force) {
-      console.error(
-        `Error: target directory "${targetDir}" already exists and is not empty.`
-      );
-      console.error('Run with "--force" to overwrite it:');
-      console.error("");
-      console.error(`  gen-web ${path.basename(targetDir)} --force`);
-      process.exit(1);
+      const msgLines = [
+        `target directory "${targetDir}" already exists and is not empty.`,
+        'Run with "--force" to overwrite it:',
+        "",
+        `  gen-web ${path.basename(targetDir)} --force`,
+      ];
+      throw new Error(msgLines.join("\n"));
     }
 
     if (files.length > 0 && force) {
       fs.rmSync(targetDir, { recursive: true, force: true });
       fs.mkdirSync(targetDir, { recursive: true });
     }
+    // If exists but empty, reuse it as-is.
   } else {
     fs.mkdirSync(targetDir, { recursive: true });
   }
 
-  // 2. Copy template recursively
   copyDirRecursive(templateDir, targetDir);
 
-  // 3. Replace placeholders in text files
   const replacements = {
     projectName,
   };
 
   replacePlaceholdersRecursive(targetDir, replacements);
-
-  // 4. Print next steps
   printNextSteps(projectName);
 }
 
@@ -86,6 +62,22 @@ function copyDirRecursive(srcDir, destDir) {
     }
   }
 }
+
+const TEXT_EXTENSIONS = new Set([
+  ".js",
+  ".cjs",
+  ".mjs",
+  ".ts",
+  ".tsx",
+  ".jsx",
+  ".json",
+  ".html",
+  ".md",
+  ".css",
+  ".scss",
+  ".sass",
+  ".txt",
+]);
 
 function replacePlaceholdersRecursive(dir, replacements) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
