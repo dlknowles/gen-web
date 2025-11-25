@@ -1,6 +1,6 @@
 {
   "name": "gen-web",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Zero-bloat React + TypeScript + Tailwind starter generator",
   "bin": {
     "gen-web": "bin/gen-web.js"
