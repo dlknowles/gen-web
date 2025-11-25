@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const { replacePlaceholdersInFile } = require("./utils/replacePlaceholders");
+const cliPkg = require("../package.json");
 
 function copyTemplate({ projectName, targetDir, force = false }) {
   const templateDir = path.resolve(__dirname, "..", "template");
@@ -39,6 +40,7 @@ function copyTemplate({ projectName, targetDir, force = false }) {
 
   const replacements = {
     projectName,
+    genWebVersion: cliPkg.version,
   };
 
   replacePlaceholdersRecursive(targetDir, replacements);
