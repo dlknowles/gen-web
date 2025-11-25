@@ -86,7 +86,7 @@ function replacePlaceholdersRecursive(dir, replacements) {
 function printNextSteps(projectName) {
   const lines = [
     '',
-    `✨ Project "${projectName}" created successfully.`,
+    `Project "${projectName}" created successfully.`,
     '',
     'Next steps:',
     `  cd ${projectName}`,

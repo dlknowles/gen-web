@@ -76,7 +76,7 @@ Most CLI starters are overloaded with:
 * Demo UIs or unnecessary assets
 
 **gen-web** gives you the opposite:
-A clean, fast baseline that senior engineers can build on without ripping anything out.
+A clean, fast baseline that developers can build on without ripping anything out.
 
 ## License
 

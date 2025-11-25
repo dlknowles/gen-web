@@ -14,7 +14,46 @@ Usage:
 Options:
   -h, --help      Show this help message
   -v, --version   Show the CLI version
+
+Notes:
+  - The project name will be normalized to a valid npm package name:
+    * lowercased
+    * spaces/underscores -> hyphens
+    * invalid characters removed/replaced
 `);
+}
+
+function normalizeProjectName(input) {
+  let name = input.trim().toLowerCase();
+
+  name = name.replace(/[\s_]+/g, "-");
+  name = name.replace(/[^a-z0-9\-~.]+/g, "-");
+  name = name.replace(/-+/g, "-");
+  name = name.replace(/^-+/, "").replace(/-+$/, "");
+
+  return name;
+}
+
+function validateProjectName(rawName, normalizedName) {
+  if (!normalizedName) {
+    console.error(`Error: project name "${rawName}" is not valid after normalization.`);
+    process.exit(1);
+  }
+
+  if (/^[._]/.test(normalizedName)) {
+    console.error(
+      `Error: project name "${normalizedName}" is invalid. ` +
+        "Names cannot start with '.' or '_'."
+    );
+    process.exit(1);
+  }
+
+  if (normalizedName.length > 214) {
+    console.error(
+      `Error: project name "${normalizedName}" is too long (max 214 characters).`
+    );
+    process.exit(1);
+  }
 }
 
 function run() {
@@ -36,18 +75,26 @@ function run() {
     process.exit(1);
   }
 
-  const projectName = args[0];
+  const rawName = args[0];
 
-  // Handle cases like: gen-web --foo
-  if (projectName.startsWith("-")) {
+  if (rawName.startsWith("-")) {
     console.error("Error: project name is required.");
     console.error("Run: gen-web --help");
     process.exit(1);
   }
 
-  const targetDir = path.resolve(process.cwd(), projectName);
+  const normalizedName = normalizeProjectName(rawName);
+  validateProjectName(rawName, normalizedName);
 
-  copyTemplate({ projectName, targetDir });
+  if (normalizedName !== rawName) {
+    console.log(
+      `Using project name "${normalizedName}" (normalized from "${rawName}").`
+    );
+  }
+
+  const targetDir = path.resolve(process.cwd(), normalizedName);
+
+  copyTemplate({ projectName: normalizedName, targetDir });
 }
 
 run();
