@@ -18,6 +18,16 @@ npm install
 npm run dev
 ```
 
+## CLI options
+
+```bash
+gen-web --help
+gen-web --version
+````
+
+* `-h, --help` – show usage and options
+* `-v, --version` – show the installed gen-web version
+
 ## What You Get
 
 A minimal, senior-level starter:
