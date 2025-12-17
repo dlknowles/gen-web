@@ -3,7 +3,7 @@
   "version": "0.1.4",
   "description": "Zero-bloat React + TypeScript + Tailwind starter generator",
   "bin": {
-    "gen-web": "bin/gen-web.js"
+    "gen-web": "bin/gen-web.cjs"
   },
   "main": "src/copyTemplate.js",
   "keywords": [
@@ -26,8 +26,13 @@
   },
   "homepage": "https://github.com/dlknowles/gen-web#readme",
   "scripts": {
-    "test": "node -e \"process.exit(0)\""
+    "test": "node -e \"process.exit(0)\"",
+    "dev:smoke": "tsx src/dev-smoke.ts"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.1.0"
+  }
 }

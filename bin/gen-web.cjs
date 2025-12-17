@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 const path = require("path");
-const { copyTemplate } = require("../src/copyTemplate");
 const pkg = require("../package.json");
+
+const USE_WIZARD_SPINE = process.env.GEN_WEB_EXPERIMENTAL === "1";
 
 function printHelp() {
   console.log(`
@@ -52,7 +53,7 @@ function validateProjectName(rawName, normalizedName) {
   }
 }
 
-function run() {
+async function run() {
   const args = process.argv.slice(2);
 
   if (args.includes("--help") || args.includes("-h")) {
@@ -86,15 +87,37 @@ function run() {
   }
 
   const targetDir = path.resolve(process.cwd(), normalizedName);
-  copyTemplate({ projectName: normalizedName, targetDir, force });
+
+  if (!USE_WIZARD_SPINE) {
+    // Legacy behavior (unchanged)
+    const { copyTemplate } = require("../src/copyTemplate");
+    copyTemplate({ projectName: normalizedName, targetDir, force });
+    return;
+  }
+
+  // Experimental (temporary hardcoded choices)
+  const { mapChoicesToTemplates } = require("../src/wizard/mapChoicesToTemplates.cjs");
+  const { generateProject } = require("../src/generator/generateProject.cjs");
+  const { runWizard } = require("../src/wizard/runWizard.cjs");
+
+  const choices = await runWizard(normalizedName);
+  const { basePath, patches } = mapChoicesToTemplates(choices);
+
+  await generateProject({
+    targetDir,
+    basePath,
+    patches,
+    projectName: normalizedName
+  });
 }
 
-(function main() {
+(async function main() {
   try {
-    run();
+    await run();
   } catch (err) {
     if (err && err.message) {
-      console.error(`Error: ${err.message}`);
+      console.error(err);
+      process.exit(1);
     } else {
       console.error("Error: Unknown error occurred.");
     }
